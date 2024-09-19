@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# **Yadot-Web**
 
-First, run the development server:
+Yadot-Web is a simple Next.js app that calculates and displays how long you have been alive in days, weeks, and years based on your date of birth. The app auto-updates daily and is fully containerized using Docker for easy deployment.
+
+## **Features**
+
+- Displays today's date.
+- Shows how long you have been alive in:
+  - Total days
+  - Weeks with partial weeks displayed as decimals
+  - Years with partial years displayed as days
+- Supports leap years.
+- Responsive design using Tailwind CSS.
+- Hover over any of the "You have been alive for" section to reveal the date of birth.
+- Built for `amd64` and `arm64` architectures.
+
+## **Getting Started**
+
+### **Prerequisites**
+
+- Node.js (version 18 or higher)
+- Docker (with Docker Buildx enabled)
+- Docker Hub account (username: `bferg314`)
+- Unraid server (optional, for deployment)
+
+### **Installation**
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/bferg314/yadot-web.git
+cd yadot-web
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env.local` file in the project root and add your date of birth as an environment variable:
+
+```bash
+NEXT_PUBLIC_REFERENCE_DATE=1979-09-11  # Example date
+```
+
+### **Running Locally**
+
+To start the app locally:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` to view the app in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### **Building the Docker Image**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To build a multi-architecture Docker image:
 
-## Learn More
+1. Enable Docker Buildx:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+docker buildx create --use
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Build the image for `amd64` and `arm64` platforms:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t bferg314/yadot-web:latest --push .
+```
 
-## Deploy on Vercel
+3. Verify the build by running the container locally:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker run -p 3000:3000 bferg314/yadot-web:latest
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### **Deploying on Unraid**
+
+1. Go to the **Docker** tab in Unraid.
+2. Click **Add Container**.
+3. Set the repository to `bferg314/yadot-web:latest`.
+4. Map port `3000` on the host to port `3000` in the container.
+5. Apply and start the container.
+
+Your app will be available at `http://<Unraid-IP>:3000`.
+
+## **Development Notes**
+
+- The app automatically refreshes daily using `setInterval` to check for the date every 10 minutes.
+- Error handling is built in for cases where the date of birth (`NEXT_PUBLIC_REFERENCE_DATE`) is not set.
+- Semantic HTML and ARIA labels are used to improve accessibility.
+- Supports localization (default: English). You can change the locale by importing a different `dayjs` locale.
+
+## **Future Enhancements**
+
+- Add unit testing with Jest or React Testing Library.
+- Expand localization support for different languages.
