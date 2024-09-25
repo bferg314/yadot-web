@@ -4,10 +4,6 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 
-type Config = {
-  referenceDate?: string;
-};
-
 const cookieKey = "userDateOfBirth";
 const totalLifeExpectancy = 90;
 
@@ -27,23 +23,9 @@ export default function Home() {
     null
   );
 
-  // Load the reference date from either NEXT_PUBLIC_REFERENCE_DATE or cookie
-  useEffect(() => {
-    const storedDob = Cookies.get(cookieKey);
-    if (process.env.NEXT_PUBLIC_REFERENCE_DATE) {
-      setUserDob(process.env.NEXT_PUBLIC_REFERENCE_DATE);
-    } else if (storedDob) {
-      setUserDob(storedDob);
-    }
-    setIsLoading(false);
-  }, []);
-
-  // Update date calculations when userDob is set
-  useEffect(() => {
-    if (!userDob) return;
-
+  const calculateTimeFromDob = (dob: string) => {
     const now = dayjs();
-    const referenceDate = dayjs(userDob);
+    const referenceDate = dayjs(dob);
 
     const dayOfWeek = now.format("dddd");
     const formattedDate = now.format("MMMM DD, YYYY");
@@ -63,12 +45,29 @@ export default function Home() {
     setDaysFrom(daysDiff.toLocaleString());
     setWeeksFrom(formattedWeeksFrom);
     setYearsFrom(formattedYearsFrom);
+  };
+
+  useEffect(() => {
+    const storedDob =
+      Cookies.get(cookieKey) || process.env.NEXT_PUBLIC_REFERENCE_DATE;
+    if (storedDob) {
+      setUserDob(storedDob);
+      calculateTimeFromDob(storedDob);
+    }
+    setIsLoading(false);
+
+    const refreshInterval = setInterval(
+      () => calculateTimeFromDob(storedDob || ""),
+      10 * 60 * 1000
+    );
+    return () => clearInterval(refreshInterval);
   }, [userDob]);
 
   const handleDobSubmit = () => {
     if (inputDob) {
       Cookies.set(cookieKey, inputDob, { expires: 365 });
       setUserDob(inputDob);
+      calculateTimeFromDob(inputDob);
     }
   };
 
@@ -77,68 +76,62 @@ export default function Home() {
     setShowChart(true);
   };
 
-  const handleCloseChart = () => {
-    setShowChart(false);
-    setChartType(null);
-  };
-
-  // Close the chart when clicking anywhere
-  const handleChartClick = () => {
-    setShowChart(false);
-  };
+  const handleChartClick = () => setShowChart(false);
 
   const renderDots = (type: "days" | "weeks" | "years") => {
-    let totalDots, filledDots, gridClass, dotStyle;
+    const settings = {
+      days: {
+        total: totalLifeExpectancy * 365,
+        size: "3px",
+        cols: "grid-cols-365",
+      },
+      weeks: {
+        total: totalLifeExpectancy * 52,
+        size: "4px",
+        cols: "grid-cols-52",
+      },
+      years: { total: totalLifeExpectancy, size: "20px", cols: "grid-cols-10" },
+    }[type];
 
-    if (type === "days") {
-      totalDots = 90 * 365; // Total days in 90 years
-      filledDots = parseInt(daysFrom.replace(/,/g, ""), 10);
-      gridClass = "grid-cols-365";
-      dotStyle = { width: "3px", height: "3px" }; // 3px dots for days
-    } else if (type === "weeks") {
-      totalDots = 90 * 52; // Total weeks in 90 years
-      filledDots = Math.floor(parseInt(weeksFrom.replace(/,/g, ""), 10));
-      gridClass = "grid-cols-52";
-      dotStyle = { width: "3px", height: "3px" }; // 4px dots for weeks
-    } else {
-      totalDots = 90; // Total years
-      filledDots = Math.floor(parseInt(yearsFrom.replace(/,/g, ""), 10));
-      gridClass = "grid-cols-10";
-      dotStyle = { width: "20px", height: "20px" }; // 10px dots for years
-    }
+    const filledDots = parseInt(
+      { days: daysFrom, weeks: weeksFrom, years: yearsFrom }[type].replace(
+        /,/g,
+        ""
+      ),
+      10
+    );
 
     return (
-      <div className={`grid ${gridClass} gap-1`}>
-        {Array.from({ length: totalDots }).map((_, i) => (
+      <div className={`grid ${settings.cols} gap-1`}>
+        {Array.from({ length: settings.total }).map((_, i) => (
           <div
             key={i}
             className={`rounded-full ${
               i < filledDots ? "bg-blue-600" : "bg-gray-300"
             }`}
-            style={dotStyle} // Custom dot size based on type
+            style={{ width: settings.size, height: settings.size }}
           />
         ))}
       </div>
     );
   };
 
-  if (isLoading) {
+  if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center h-screen p-6">
-        <div>Loading...</div>
+      <div className="flex items-center justify-center h-screen">
+        Loading...
       </div>
     );
-  }
 
   if (!userDob) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen p-6">
+      <div className="flex flex-col items-center justify-center h-screen">
         <h2 className="text-2xl font-bold mb-4">Enter Your Date of Birth</h2>
         <input
           type="date"
           value={inputDob}
           onChange={(e) => setInputDob(e.target.value)}
-          className="border border-gray-300 p-2 mb-4 text-black"
+          className="border p-2 mb-4 text-black"
         />
         <button
           onClick={handleDobSubmit}
@@ -157,32 +150,29 @@ export default function Home() {
         <p>{currentDate.dayOfWeek}</p>
         <p>{currentDate.formattedDate}</p>
       </div>
-      <h2 className="text-2xl font-bold mb-4">You have been alive for</h2>
-      <div
-        className="text-center text-3xl font-bold mt-4 cursor-pointer"
-        onClick={() => handleShowChart("days")}
-      >
-        <p>{daysFrom}</p>
-        <p className="text-lg">Days</p>
-      </div>
-      <div
-        className="text-center text-3xl font-bold mt-4 cursor-pointer"
-        onClick={() => handleShowChart("weeks")}
-      >
-        <p>{weeksFrom}</p>
-        <p className="text-lg">Weeks</p>
-      </div>
-      <div
-        className="text-center text-3xl font-bold mt-4 cursor-pointer"
-        onClick={() => handleShowChart("years")}
-      >
-        <p>{yearsFrom}</p>
-        <p className="text-lg">Years</p>
-      </div>
+      <h2 className="text-2xl font-bold mb-2 mt-4">You have been alive for</h2>
+      {(["days", "weeks", "years"] as const).map((type) => (
+        <div
+          key={type}
+          className="text-center text-3xl font-bold mt-4 cursor-pointer"
+          onClick={() => handleShowChart(type)}
+        >
+          <p>
+            {type === "days"
+              ? daysFrom
+              : type === "weeks"
+              ? weeksFrom
+              : yearsFrom}
+          </p>
+          <p className="text-lg">
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </p>
+        </div>
+      ))}
 
       {showChart && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
           onClick={handleChartClick}
         >
           <div className="p-4 bg-black rounded-lg">
