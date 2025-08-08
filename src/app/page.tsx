@@ -129,7 +129,12 @@ export default function Home() {
       }
     }, [filledDots, settings]);
 
-    return <canvas ref={canvasRef} />;
+    return (
+      <canvas
+        ref={canvasRef}
+        aria-label={`Life expectancy chart showing ${filledDots} filled dots out of ${settings.total} total representing ${type}`}
+      />
+    );
   };
 
   if (isLoading)
