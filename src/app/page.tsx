@@ -116,7 +116,18 @@ export default function Home() {
       canvas.height = rows * (size + gap);
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const gap = 1;
+    const { size, cols, total } = settings;
+    const rows = Math.ceil(total / cols);
+    const width = useMemo(() => cols * (size + gap), [cols, size, gap]);
+    const height = useMemo(() => rows * (size + gap), [rows, size, gap]);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
       for (let i = 0; i < total; i++) {
         const row = Math.floor(i / cols);
         const col = i % cols;
