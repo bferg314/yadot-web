@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 
@@ -90,19 +90,12 @@ export default function Home() {
 
   const handleChartClick = () => setShowChart(false);
 
-  const renderDots = (type: "days" | "weeks" | "years") => {
+  const DotChart = ({ type }: { type: "days" | "weeks" | "years" }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings = {
-      days: {
-        total: totalLifeExpectancy * 365,
-        size: "3px",
-        cols: "grid-cols-365",
-      },
-      weeks: {
-        total: totalLifeExpectancy * 52,
-        size: "4px",
-        cols: "grid-cols-52",
-      },
-      years: { total: totalLifeExpectancy, size: "20px", cols: "grid-cols-10" },
+      days: { total: totalLifeExpectancy * 365, size: 3, cols: 365 },
+      weeks: { total: totalLifeExpectancy * 52, size: 4, cols: 52 },
+      years: { total: totalLifeExpectancy, size: 20, cols: 10 },
     }[type];
 
     const filledDots = parseInt(
@@ -113,18 +106,34 @@ export default function Home() {
       10
     );
 
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const gap = 1;
+      const { size, cols, total } = settings;
+      const rows = Math.ceil(total / cols);
+      canvas.width = cols * (size + gap);
+      canvas.height = rows * (size + gap);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < total; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const x = col * (size + gap) + size / 2;
+        const y = row * (size + gap) + size / 2;
+        ctx.beginPath();
+        ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+        ctx.fillStyle = i < filledDots ? "#2563eb" : "#d1d5db";
+        ctx.fill();
+      }
+    }, [filledDots, settings]);
+
     return (
-      <div className={`grid ${settings.cols} gap-1`}>
-        {Array.from({ length: settings.total }).map((_, i) => (
-          <div
-            key={i}
-            className={`rounded-full ${
-              i < filledDots ? "bg-blue-600" : "bg-gray-300"
-            }`}
-            style={{ width: settings.size, height: settings.size }}
-          />
-        ))}
-      </div>
+      <canvas
+        ref={canvasRef}
+        aria-label={`Life expectancy chart showing ${filledDots} filled dots out of ${settings.total} total representing ${type}`}
+      />
     );
   };
 
@@ -188,7 +197,7 @@ export default function Home() {
           onClick={handleChartClick}
         >
           <div className="p-4 bg-black rounded-lg">
-            {chartType && renderDots(chartType)}
+            {chartType && <DotChart type={chartType} />}
           </div>
         </div>
       )}
