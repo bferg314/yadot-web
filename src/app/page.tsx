@@ -24,9 +24,12 @@ export default function Home() {
   );
 
   const calculateTimeFromDob = (dob: string) => {
-    const now = dayjs();
     const referenceDate = dayjs(dob);
+    if (!referenceDate.isValid()) {
+      return;
+    }
 
+    const now = dayjs();
     const dayOfWeek = now.format("dddd");
     const formattedDate = now.format("MMMM DD, YYYY");
     setCurrentDate({ dayOfWeek, formattedDate });
@@ -50,17 +53,26 @@ export default function Home() {
   useEffect(() => {
     const storedDob =
       Cookies.get(cookieKey) || process.env.NEXT_PUBLIC_REFERENCE_DATE;
-    if (storedDob) {
+    let refreshInterval: NodeJS.Timeout | null = null;
+
+    if (storedDob && dayjs(storedDob).isValid()) {
       setUserDob(storedDob);
       calculateTimeFromDob(storedDob);
+
+      refreshInterval = setInterval(() => {
+        const latestDob =
+          Cookies.get(cookieKey) || process.env.NEXT_PUBLIC_REFERENCE_DATE;
+        if (latestDob && dayjs(latestDob).isValid()) {
+          calculateTimeFromDob(latestDob);
+        }
+      }, 10 * 60 * 1000);
     }
+
     setIsLoading(false);
 
-    const refreshInterval = setInterval(
-      () => calculateTimeFromDob(storedDob || ""),
-      10 * 60 * 1000
-    );
-    return () => clearInterval(refreshInterval);
+    return () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    };
   }, [userDob]);
 
   const handleDobSubmit = () => {
