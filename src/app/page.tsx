@@ -77,7 +77,33 @@ export default function Home() {
 
   const handleDobSubmit = () => {
     if (inputDob) {
-      Cookies.set(cookieKey, inputDob, { expires: 365 });
+      const dob = dayjs(inputDob);
+      const now = dayjs();
+
+      // Validate: date must be valid, in the past, and reasonable (after 1900)
+      if (!dob.isValid()) {
+        alert("Please enter a valid date");
+        return;
+      }
+
+      if (dob.isAfter(now)) {
+        alert("Date of birth cannot be in the future");
+        return;
+      }
+
+      if (dob.year() < 1900) {
+        alert("Please enter a date after 1900");
+        return;
+      }
+
+      // Set cookie with security flags
+      Cookies.set(cookieKey, inputDob, {
+        expires: 365,
+        secure: true,      // Only transmit over HTTPS
+        sameSite: 'strict' // Prevent CSRF attacks
+        // Note: HttpOnly cannot be set via js-cookie (client-side)
+        // For HttpOnly, consider moving to server-side cookies
+      });
       setUserDob(inputDob);
       calculateTimeFromDob(inputDob);
     }
