@@ -1,3 +1,18 @@
+# 1.0.0 (2025-12-10)
+
+
+### Bug Fixes
+
+* escape key now closes modal, remove verbose text ([0e0004b](https://github.com/bferg314/yadot-web/commit/0e0004bb4bb28ad602c975398712aacf219380a4))
+
+
+### Features
+
+* implement semantic release workflow and update configuration files ([4e99c11](https://github.com/bferg314/yadot-web/commit/4e99c113771f02b560a34d287b29d329ae3abf1e))
+* implement semantic release workflow and update configuration files ([f30aba5](https://github.com/bferg314/yadot-web/commit/f30aba56ec89349a5531ca7432f628fee2d78e90))
+* implement semantic release workflow and update configuration files ([8b3ddc2](https://github.com/bferg314/yadot-web/commit/8b3ddc2666fbdacfecdf9c2b23775fc81e3cd950))
+* improve UX and accessibility ([46ee546](https://github.com/bferg314/yadot-web/commit/46ee5468dabfcfe2912f3825d5f51e579c13af52))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
