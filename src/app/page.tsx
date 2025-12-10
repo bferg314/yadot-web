@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import DotChart, { ChartType } from "@/components/DotChart";
@@ -24,6 +24,7 @@ export default function Home() {
   const [chartType, setChartType] = useState<ChartType | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const calculateTimeFromDob = useCallback((dob: string) => {
     const referenceDate = dayjs(dob);
@@ -128,6 +129,12 @@ export default function Home() {
   };
 
   const handleCloseChart = () => setShowChart(false);
+
+  useEffect(() => {
+    if (showChart && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [showChart]);
 
   const handleKeyDown = (e: React.KeyboardEvent, type: ChartType) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -250,6 +257,7 @@ export default function Home() {
 
       {showChart && chartType && (
         <div
+          ref={modalRef}
           role="dialog"
           aria-modal="true"
           aria-label={`${chartType} visualization`}
@@ -258,14 +266,8 @@ export default function Home() {
           onKeyDown={handleModalKeyDown}
           tabIndex={-1}
         >
-          <div
-            className="p-4 bg-black rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div onClick={(e) => e.stopPropagation()}>
             <DotChart type={chartType} filledDots={getFilledDots(chartType)} />
-            <p className="text-center text-white text-sm mt-2">
-              Click anywhere or press Escape to close
-            </p>
           </div>
         </div>
       )}
