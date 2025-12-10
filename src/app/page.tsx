@@ -393,10 +393,16 @@ export default function Home() {
               className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
               onClick={handleCloseChart}
               onKeyDown={handleModalKeyDown}
-              tabIndex={-1}
             >
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={(e) => e.stopPropagation()} className="relative">
                 <DotChart type={chartType} filledDots={getFilledDots(chartType)} lifeExpectancy={lifeExpectancy} />
+                <button
+                  onClick={handleCloseChart}
+                  className="sr-only"
+                  aria-label="Close chart"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </FocusTrap>
