@@ -10,7 +10,11 @@
       "Bash(docker build:*)",
       "Bash(timeout /t 3)",
       "Bash(npm run lint:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(git tag:*)",
+      "Bash(git config:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,41 @@
+name: PR Commit Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install commitlint
+        run: |
+          npm install --save-dev @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate commits
+        id: commitlint
+        continue-on-error: true
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Comment on PR
+        if: steps.commitlint.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Commit Message Format Issue**\n\nSome commits don\'t follow the conventional commit format. While this won\'t block your PR, following the convention helps with automatic versioning and changelog generation.\n\n**Expected format:** `<type>(<scope>): <description>`\n\n**Types:** `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`\n\n**Examples:**\n- `feat: add dark mode toggle`\n- `fix: resolve cookie persistence bug`\n- `chore: update dependencies`\n\nSee [CLAUDE.md](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/blob/main/CLAUDE.md#versioning-and-release-workflow) for more details.'
+            })

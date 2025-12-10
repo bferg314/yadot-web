@@ -125,6 +125,79 @@ src/
 - Published to Docker Hub as `bferg314/yadot-web:latest`
 - Port 3000 exposed
 
+## Versioning and Release Workflow
+
+### Automated Releases
+
+Every merge to `main` triggers an automated release process:
+
+1. Commits are analyzed for conventional commit format
+2. Version number is bumped automatically (semver)
+3. CHANGELOG.md is updated with categorized changes
+4. Git tag and GitHub release are created
+5. Multi-arch Docker images are built and pushed to Docker Hub
+
+### Conventional Commit Format
+
+All commits **MUST** follow this format:
+
+```
+<type>(<optional-scope>): <description>
+```
+
+**Commit Types:**
+
+- `feat:` - New feature (bumps minor version: 0.1.0 → 0.2.0)
+- `fix:` - Bug fix (bumps patch version: 0.1.0 → 0.1.1)
+- `chore:` - Maintenance (no version bump)
+- `docs:` - Documentation (no version bump)
+- `refactor:` - Code refactoring (no version bump)
+- `test:` - Tests (no version bump)
+- `ci:` - CI/CD changes (no version bump)
+
+**Breaking Changes:**
+
+- Add `!` after type: `feat!:` or `fix!:`
+- Or add footer: `BREAKING CHANGE: description`
+- This bumps major version: 0.1.0 → 1.0.0
+
+**Examples:**
+
+```bash
+# Good commits
+git commit -m "feat: add dark mode toggle"
+git commit -m "fix: resolve modal escape key issue"
+git commit -m "chore: update dependencies"
+git commit -m "feat(ui): improve accessibility"
+git commit -m "feat!: redesign entire interface"
+
+# Bad commits (avoid)
+git commit -m "updates"
+git commit -m "Fixed bug"  # Wrong: missing type, wrong case
+git commit -m "add dark mode"  # Wrong: missing type
+```
+
+### Version Tags
+
+Docker images are tagged with:
+
+- `bferg314/yadot-web:vX.Y.Z` (specific version, e.g., v0.2.1)
+- `bferg314/yadot-web:vX.Y` (minor version, e.g., v0.2)
+- `bferg314/yadot-web:vX` (major version, e.g., v0)
+- `bferg314/yadot-web:latest` (always latest release)
+
+### Viewing Releases
+
+- **GitHub Releases**: View all versions with detailed notes
+- **CHANGELOG.md**: Complete version history in the repository
+- **Git tags**: Run `git tag -l` to list all version tags
+- **Docker Hub**: Tags page shows all published images
+
+### Manual Triggers (if needed)
+
+- GitHub Actions → Release → Run workflow
+- GitHub Actions → Docker Build → Run workflow
+
 ---
 
 **Remember**: When in doubt, do less. The goal is to show life metrics beautifully and get out of the way.
