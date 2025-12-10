@@ -57,21 +57,33 @@ Visit `http://localhost:3000` to view the app in your browser.
 
 ### **Building the Docker Image**
 
-To build a multi-architecture Docker image:
+Docker images are automatically built and published via GitHub Actions when changes are pushed to `main`. Images are tagged with semantic versions and pushed to Docker Hub.
 
-1. Enable Docker Buildx:
+**Automated builds include:**
+- `bferg314/yadot-web:latest` - Always the newest release
+- `bferg314/yadot-web:vX.Y.Z` - Specific version (e.g., v0.2.1)
+- `bferg314/yadot-web:vX.Y` - Minor version (e.g., v0.2)
+- `bferg314/yadot-web:vX` - Major version (e.g., v0)
+
+**Manual build (if needed):**
+
+1. Ensure Docker Buildx is enabled:
 
 ```bash
 docker buildx create --use
 ```
 
-2. Build the image for `amd64` and `arm64` platforms:
+2. Build and push multi-architecture image:
 
 ```bash
-docker buildx build --platform linux/amd64,linux/arm64 -t bferg314/yadot-web:latest --push .
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t bferg314/yadot-web:latest \
+  -t bferg314/yadot-web:v$(node -p "require('./package.json').version") \
+  --push .
 ```
 
-3. Verify the build by running the container locally:
+3. Run the container locally:
 
 ```bash
 docker run -p 3000:3000 bferg314/yadot-web:latest
