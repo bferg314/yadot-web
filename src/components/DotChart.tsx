@@ -2,23 +2,23 @@
 
 import { useEffect, useRef, memo } from "react";
 
-const LIFE_EXPECTANCY = 90;
-
 type ChartType = "days" | "weeks" | "years";
 
 interface DotChartProps {
   type: ChartType;
   filledDots: number;
+  lifeExpectancy: number;
 }
 
-const chartSettings: Record<ChartType, { total: number; size: number; cols: number }> = {
-  days: { total: LIFE_EXPECTANCY * 365, size: 3, cols: 365 },
-  weeks: { total: LIFE_EXPECTANCY * 52, size: 4, cols: 52 },
-  years: { total: LIFE_EXPECTANCY, size: 20, cols: 10 },
-};
-
-function DotChart({ type, filledDots }: DotChartProps) {
+function DotChart({ type, filledDots, lifeExpectancy }: DotChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const chartSettings: Record<ChartType, { total: number; size: number; cols: number }> = {
+    days: { total: lifeExpectancy * 365, size: 3, cols: 365 },
+    weeks: { total: lifeExpectancy * 52, size: 4, cols: 52 },
+    years: { total: lifeExpectancy, size: 20, cols: 10 },
+  };
+
   const settings = chartSettings[type];
 
   useEffect(() => {
@@ -48,7 +48,7 @@ function DotChart({ type, filledDots }: DotChartProps) {
       ctx.fillStyle = i < filledDots ? "#2563eb" : "#d1d5db";
       ctx.fill();
     }
-  }, [filledDots, settings]);
+  }, [filledDots, settings, lifeExpectancy]);
 
   return (
     <canvas

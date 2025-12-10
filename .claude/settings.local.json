@@ -8,7 +8,9 @@
       "Bash(npm run build:*)",
       "Bash(docker-compose config:*)",
       "Bash(docker build:*)",
-      "Bash(timeout /t 3)"
+      "Bash(timeout /t 3)",
+      "Bash(npm run lint:*)",
+      "Bash(docker:*)"
     ],
     "deny": [],
     "ask": []
