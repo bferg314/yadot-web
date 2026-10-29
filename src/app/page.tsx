@@ -71,6 +71,8 @@ export default function Home() {
       if (storedLifeExpectancy) {
         const parsed = parseInt(storedLifeExpectancy, 10);
         if (!isNaN(parsed) && parsed > 0) {
+          // The page is prerendered, so cookies can only be read after hydration
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setLifeExpectancy(parsed);
         }
       }

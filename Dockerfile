@@ -1,5 +1,5 @@
-# Use official Node.js 18 image as the base image
-FROM node:18-alpine AS base
+# Use official Node.js 22 image as the base image (Next.js 16 needs 20.9+)
+FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
