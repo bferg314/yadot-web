@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/bferg314/yadot-web/compare/v1.0.0...v1.0.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* upgrade to Next.js 16.4.3 for security advisories ([fdc7c55](https://github.com/bferg314/yadot-web/commit/fdc7c55d6a8a39131484305c337169663d30713c))
+
 # 1.0.0 (2025-12-10)
 
 
