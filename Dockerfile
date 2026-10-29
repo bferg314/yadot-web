@@ -38,6 +38,9 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
+# Listen on all interfaces. Docker sets HOSTNAME to the container ID, and the
+# standalone server binds to it, which leaves localhost (the health check) out.
+ENV HOSTNAME=0.0.0.0
 
 # Create a non-root user and group
 RUN addgroup --system --gid 1001 nodejs && \
