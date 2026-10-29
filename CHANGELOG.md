@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/bferg314/yadot-web/compare/v1.0.1...v1.0.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* make the container health check reach the server ([efc3f90](https://github.com/bferg314/yadot-web/commit/efc3f90165a2de5af620193866f97056b88dd814))
+
 ## [1.0.1](https://github.com/bferg314/yadot-web/compare/v1.0.0...v1.0.1) (2026-10-29)
 
 
